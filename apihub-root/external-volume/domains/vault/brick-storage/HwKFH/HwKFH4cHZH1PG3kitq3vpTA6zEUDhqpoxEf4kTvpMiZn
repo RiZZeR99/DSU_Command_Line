@@ -1,0 +1,80 @@
+/* Components */
+
+dw-clipboard-input > sl-input::part(suffix) {
+    padding: var(--sl-spacing-small);
+    cursor: pointer;
+    background-color: var(--icon-background);
+}
+
+dw-clipboard-input > sl-input::part(suffix):hover {
+    background-color: rgb(var(--sl-color-primary-50));
+}
+
+dw-clipboard-input > sl-input::part(input) {
+    font-family: "courier new", monospace;
+    padding-top: 3px;
+}
+
+dw-clipboard-input > sl-input > sl-icon::part(base) {
+    color: var(--icon-color);
+}
+
+/* Classes */
+
+.dw-container {
+    display: grid;
+    margin: 45px 0 0 124px;
+}
+
+.not-implemented {
+    font-size: 40px;
+    margin-top: 80px;
+}
+
+.dw-dialog {
+    --body-spacing: 0;
+}
+
+.dw-dialog > header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: var(--sl-spacing-large) var(--sl-spacing-large) var(--sl-spacing-x-small) var(--sl-spacing-large);
+    column-gap: var(--sl-spacing-large);
+}
+
+.dw-dialog > header > h3 {
+    display: flex;
+    align-items: center;
+    gap: var(--sl-spacing-small);
+    margin: 0;
+}
+
+.dw-dialog > header > sl-icon-button[close]::part(base) {
+    padding: 0;
+}
+
+.dw-data-grid {
+    padding: var(--sl-spacing-small);
+    border: var(--border);
+    background: var(--background);
+}
+
+.dw-data-grid .no-data {
+    padding: var(--sl-spacing-small);
+    text-align: center;
+}
+
+.dw-manage-organization-container {
+    margin: 0 -1.5rem;
+}
+
+@media screen and (max-width: 420px) {
+    .dw-container {
+        padding: 0 1em;
+    }
+
+    .dw-data-grid {
+        padding: 0;
+    }
+}

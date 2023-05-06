@@ -1,0 +1,7 @@
+<link rel="stylesheet" href="./assets/pages/my-identities.css">
+
+<webc-container controller="MyIdentitiesController" id="my-identities-page" class="dw-container">
+    <dw-title>Current identity</dw-title>
+
+    <dw-clipboard-input value="@did" readonly></dw-clipboard-input>
+</webc-container>
