@@ -1,6 +1,7 @@
 // load environment
 require("../opendsu-sdk/psknode/bundles/openDSU");
 
+const { write, writeFile, readFile } = require("fs");
 // load SDK
 const opendsu = require("opendsu");
 
@@ -41,7 +42,7 @@ function list(dsu) {
 }
 
 
-function readFile(dsuInstance, name) {
+function readContact(dsuInstance, name) {
     dsuInstance.readFile(name, (err, res) => {
         console.log('\n')
         console.table(JSON.parse(res.toString()));
@@ -60,55 +61,73 @@ function remove(dsuInstance, name) {
     })
 }
 
+async function exportData(dsuInstance) {
+    let listContacts = [];
+    let listFiles = await $$.promisify(dsuInstance.listFiles, dsuInstance)("/");
 
-async function getContacts(dsuInstance) {
-    listContacts = [];
-    dsuInstance.listFiles("/", (err, files) => {
-        if (err) {
-
+    for (let index = 0; index < listFiles.length; index++) {
+        let fileContact = listFiles[index];
+        if (fileContact != "dsu-metadata-log") {
+            let contact = await $$.promisify(dsuInstance.readFile, dsuInstance)(fileContact)
+                .catch(err => {
+                    console.log("Error exporting data! " + err);
+                });
+            listContacts.push(JSON.parse(contact));
         }
-        // console.log(files);
+    }
 
-        files.forEach(element => {
-            dsuInstance.readFile(element, (err, res) => {
-                listContacts.push(res);
-                // console.log("File: " + res);
-                // return res;
-            });
-        });
+    // console.log(listContacts);
+
+    let fileName = Date.now();
+
+    writeFile("./" + fileName, JSON.stringify(listContacts, null, 4), (err) => {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log("Written contacts at file " + fileName);
+        }
     });
-    return listContacts;
 }
 
-function exportData(dsuInstance) {
-    console.log("aloooo");
-    listContacts = [];
-    dsuInstance.listFiles("/", (err, files) => {
-        if (err) {
+async function parseJsonImport(dsuInstance, jsonData) {
+    json = jsonData;
 
-        }
-        console.log("Files found: " + files);
+    if (jsonData.startsWith("file://")) {
 
-        files.forEach(element => {
-            dsuInstance.readFile(element, (err, result) => {
-                listContacts.push(JSON.parse(result.toString()));
-                console.log(listContacts);
-            })
-        });
+        json = await $$.promisify(readFile)(jsonData.replace("file://", ""))
+            .catch(err => {
+                console.log("Error: " + err);
+                process.exit(1);
+            });
+    }
 
-    })
+    await importData(dsuInstance, json);
 }
 
+async function importData(dsuInstance, jsonData) {
 
-async function exportContacts(dsuInstance) {
-    let contacts = await getContacts(dsuInstance);
-    console.log(contacts);
+    console.log("Received json: " + jsonData);
+
+    const listContacts = JSON.parse(jsonData);
+
+    console.log("contacts: " + listContacts);
+
+    for (let index = 0; index < listContacts.length; index++) {
+        contact = listContacts[index];
+        add(dsuInstance, contact.name, contact.emai, contact.phoneNumber, contact.address);
+    }
 }
 
-function updateData(dsuInstance, name, mail, phoneNumber, address) {
-    remove(dsuInstance, name);
-
-    add(dsuInstance, name, mail, phoneNumber, address);
+async function updateData(dsuInstance, name, mail, phoneNumber, address) {
+    let listFiles = await $$.promisify(dsuInstance.listFiles, dsuInstance)("/");
+    if (listFiles.includes(name)) {
+        remove(dsuInstance, name);
+        add(dsuInstance, name, mail, phoneNumber, address);
+    }
+    else {
+        console.log("There is no file with name " + name);
+    }
 }
 
 function runSession(dsuInstance) {
@@ -118,13 +137,12 @@ function runSession(dsuInstance) {
         switch (command[0]) {
             case 'add':
                 add(dsuInstance, command[1], command[2], command[3], command[4]);
-                // add(dsuInstance, command[1], command[2]);
                 break;
             case 'list':
                 list(dsuInstance);
                 break;
             case 'read':
-                readFile(dsuInstance, command[1]);
+                readContact(dsuInstance, command[1]);
                 break;
             case 'delete':
                 remove(dsuInstance, command[1]);
@@ -134,6 +152,9 @@ function runSession(dsuInstance) {
                 break
             case 'export':
                 exportData(dsuInstance);
+                break;
+            case 'import':
+                parseJsonImport(dsuInstance, command[1]);
                 break;
             case 'exit':
                 process.exit(0);
@@ -146,6 +167,6 @@ resolver.createDSU(ssiOnPassword, (err, dsuInstance) => {
     if (err) {
         throw err;
     }
-    add(dsuInstance, 'ionut', 'ionut', 'ionut', 'ionut');
+    // add(dsuInstance, 'ionut', 'ionut', 'ionut', 'ionut');
     runSession(dsuInstance);
 });
