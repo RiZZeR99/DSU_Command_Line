@@ -1,4 +1,4 @@
-# Agenta using OpenDSU technology
+# Contact book using OpenDSU technology
 
 This project aims to provide an application that uses the OpenDSU technologies to manage contacts.
 
