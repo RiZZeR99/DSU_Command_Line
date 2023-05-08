@@ -21,10 +21,10 @@ This section provides the available commands for the application
 The JSON must by an array of elements, each element having the following structure:
 ```json
 {
-        "name": "adrian",
-        "email": "1",
-        "phoneNumber": "1",
-        "address": "1"
+        "name": "contact_name",
+        "email": "contact_mail",
+        "phoneNumber": "contact_phone_number",
+        "address": "contact_address"
 }
 ```
 8. [Exit] - exits the program
