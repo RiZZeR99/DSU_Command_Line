@@ -24,6 +24,7 @@ function add(dsu, name, email, phoneNumber, address) {
     console.log("Format:");
     console.log("------------------------------------------------");
     console.log("name    |    mail    |    phone     |    address");
+    // console.log(JSON.stringify({ name, email, phoneNumber, address }));
     dsu.writeFile(name, JSON.stringify({ name, email, phoneNumber, address }), (err) => {
         if (err) {
             console.log("Error: " + err);
@@ -123,16 +124,16 @@ async function importData(dsuInstance, jsonData) {
 
     try {
         const listContacts = JSON.parse(jsonData);
-        console.log("contacts: " + listContacts);
+        console.log("contacts: " + JSON.stringify(listContacts));
         let listFiles = await $$.promisify(dsuInstance.listFiles, dsuInstance)("/");
-
         for (let index = 0; index < listContacts.length; index++) {
             contact = listContacts[index];
             if (listFiles.includes(contact)) {
-                updateData(dsuInstance, contact.name, contact.mail, contact.phoneNumber, contact.address);
+                console.log(JSON.stringify(contact));
+                updateData(dsuInstance, contact.name, contact.email, contact.phoneNumber, contact.address);
             }
             else {
-                add(dsuInstance, contact.name, contact.emai, contact.phoneNumber, contact.address);
+                add(dsuInstance, contact.name, contact.email, contact.phoneNumber, contact.address);
             }
         }
 
